@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "rtorch:block/torchrino"
+    }
+  }
+}

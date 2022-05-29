@@ -1,0 +1,180 @@
+buildscript {
+    repositories {
+        maven { url = 'https://plugins.gradle.org/m2/' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url = 'https://maven.parchmentmc.org' }
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+            content { includeGroup 'org.spongepowered' }
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "${forgegradle_version}", changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: "${mixingradle_version}"
+        classpath group: 'org.parchmentmc', name: 'librarian', version: "${librarian_version}"
+    }
+}
+plugins {
+	id 'java'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'org.cadixdev.licenser' version '0.6.1'
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: 'maven-publish'
+
+group = 'com.khjxiaogu'
+version = "${minecraft_version}-${mod_version}"
+archivesBaseName = 'rtorch'
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+sourceSets {
+    main {
+        resources {
+            srcDirs = [
+                    "$rootDir/src/main/resources",
+                    'src/generated/resources'
+            ]
+        }
+    }
+	datagen {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+        resources {
+            srcDirs = [
+                    "$rootDir/src/datagen/resources",
+            ]
+        }
+    }
+}
+minecraft {
+	//mappings channel: 'snapshot', version: '20210309-1.16.5'
+    mappings channel: 'parchment', version: "${parchment_mappings}"
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            arg "-mixin.config=" + "rtorch.mixins.json"
+            mods {
+                rtorch {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            arg "-mixin.config=" + "rtorch.mixins.json"
+            mods {
+                rtorch {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'rtorch', '--all', '--output', file('src/generated/resources/'), 'validate', '--existing', file('src/main/resources/')
+            mods {
+                rtorch {
+					source sourceSets.main
+                    source sourceSets.datagen
+                }
+            }
+        }
+    }
+}
+
+
+mixin {
+    add sourceSets.main, "rtorch.refmap.json"
+}
+
+repositories {
+    mavenLocal()
+    // JEI and TC Files
+    maven {
+        name = "DVS1 Maven FS"
+        url = "https://dvs1.progwml6.com/files/maven"
+    }
+    // Needed for JEI
+    maven {
+        name = "latvian maven"
+        url = "https://maven.latmod.com/"
+    }
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    //implementation fg.deobf("mezz.jei:jei-1.16.5:7.6.4.88")
+
+    // FG5 requires 0.8.3
+    annotationProcessor "org.spongepowered:mixin:0.8.3:processor"
+    testAnnotationProcessor "org.spongepowered:mixin:0.8.3:processor"
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "RetardTorch",
+                "Specification-Vendor"    : "Khjxiaogu",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.version,
+                "Implementation-Vendor"   : "Khjxiaogu",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs": "rtorch.mixins.json"
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    archiveClassifier.set('sources')
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    archiveClassifier.set('deobf')
+}
+
+artifacts {
+    archives sourcesJar
+    archives deobfJar
+}
+
+
+// Automatically apply a license header when running checkLicense / updateLicense
+license {
+    header = project.file('HEADER.txt')
+    ignoreFailures = true
+    include '**/*.java'
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "rtorch:block/wall_torchrino"
+    },
+    "facing=south": {
+      "model": "rtorch:block/wall_torchrino",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "rtorch:block/wall_torchrino",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "rtorch:block/wall_torchrino",
+      "y": 270
+    }
+  }
+}

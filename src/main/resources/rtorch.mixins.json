@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.khjxiaogu.rtorch.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "rtorch.refmap.json",
+  "mixins": [
+  "ServerLevelMixin",
+  "LevelMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
