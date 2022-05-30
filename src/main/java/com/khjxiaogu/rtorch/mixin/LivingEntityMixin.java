@@ -19,19 +19,21 @@
 package com.khjxiaogu.rtorch.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.khjxiaogu.rtorch.Contents;
 
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ambient.Bat;
-import net.minecraft.world.entity.animal.AbstractSchoolingFish;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Dolphin;
@@ -54,14 +56,15 @@ import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-@Mixin({Player.class,Mob.class,
-	Bat.class,Bee.class,Cat.class,Dolphin.class,Fox.class,Panda.class,PolarBear.class,Pufferfish.class,Wolf.class,AbstractHorse.class,AbstractSchoolingFish.class,
-	Creeper.class,Endermite.class,Phantom.class,Shulker.class,Silverfish.class,Skeleton.class,Slime.class,Spider.class,Strider.class,Vex.class,Zombie.class,ZombieVillager.class})
-public abstract class PlayerMixin extends LivingEntity{	
-	protected PlayerMixin(EntityType<? extends LivingEntity> p_20966_, Level p_20967_) {
-		super(p_20966_, p_20967_);
+@Mixin(LivingEntity.class)
+public abstract class LivingEntityMixin extends Entity{	
+
+
+	public LivingEntityMixin(EntityType<?> pEntityType, Level pLevel) {
+		super(pEntityType, pLevel);
 	}
 
 	@Inject(at = @At("HEAD"),
@@ -74,14 +77,20 @@ public abstract class PlayerMixin extends LivingEntity{
 		
 		if(super.getLevel().getGameTime()%2==0)
 			if(getItemBySlot(EquipmentSlot.LEGS).getItem().equals(Contents.Blocks.item.get())) {
-				MobEffectInstance dslow=super.getEffect(MobEffects.DIG_SLOWDOWN);
+				MobEffectInstance dslow=getEffect(MobEffects.DIG_SLOWDOWN);
 				if(dslow==null||dslow.getDuration()<10) {
-					super.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN,10,5));
+					addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN,10,5));
 				}
 					
 				cb.cancel();
 			}
 	}
+	@Shadow(remap=true)
+	protected abstract MobEffectInstance getEffect(MobEffect digSlowdown);
+	@Shadow(remap=true)
+	protected abstract void addEffect(MobEffectInstance mobEffectInstance);
+	@Shadow(remap=true)
+	protected abstract ItemStack getItemBySlot(EquipmentSlot legs);
 
 
 }

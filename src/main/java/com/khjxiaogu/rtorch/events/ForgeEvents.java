@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2022 Khjxiaogu
+ *
+ * This file is part of RetardTorch.
+ *
+ * RetardTorch is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * RetardTorch is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with RetardTorch. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.khjxiaogu.rtorch.events;
+
+import com.khjxiaogu.rtorch.Contents;
+import com.khjxiaogu.rtorch.Main;
+
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
+@Mod.EventBusSubscriber(modid = Main.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+public class ForgeEvents {
+
+	@SubscribeEvent
+	public static void onAttack(LivingAttackEvent event) {
+		if(event.getSource().getEntity() instanceof LivingEntity) {
+			LivingEntity l=(LivingEntity) event.getSource().getEntity();
+			Item i=l.getMainHandItem().getItem();
+			if(i==Contents.Blocks.item.get())
+				if(l.getItemBySlot(EquipmentSlot.LEGS).isEmpty()) {
+					if(event.getEntityLiving() instanceof Mob) {
+						Mob m=(Mob) event.getEntityLiving();
+						m.setGuaranteedDrop(EquipmentSlot.LEGS);
+						m.setPersistenceRequired();
+						
+					}
+						
+					event.getEntityLiving().setItemSlot(EquipmentSlot.LEGS,new ItemStack(i));
+					l.getMainHandItem().shrink(1);
+				}
+		}
+	}
+
+}
