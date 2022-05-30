@@ -49,6 +49,7 @@ public class ClientRegistry {
         render.addLayer(new TorchRenderer<>(render));
         render = (PlayerRenderer) event.getSkin("slim");
         render.addLayer(new TorchRenderer<>(render));
+
 	}
 	@SuppressWarnings("unused")
 	@SubscribeEvent

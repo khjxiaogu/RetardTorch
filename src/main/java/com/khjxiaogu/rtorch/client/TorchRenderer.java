@@ -19,6 +19,7 @@
 package com.khjxiaogu.rtorch.client;
 
 import com.khjxiaogu.rtorch.Contents;
+import com.khjxiaogu.rtorch.Contents.Blocks;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 
@@ -29,6 +30,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.ModelDataManager;
@@ -49,14 +51,16 @@ public class TorchRenderer<E extends LivingEntity, M extends HumanoidModel<E>> e
 	public void render(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, E pLivingEntity,
 			float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw,
 			float pHeadPitch) {
-		BlockState bs=Contents.Blocks.torch.get().defaultBlockState();
-		pMatrixStack.pushPose();
-		pMatrixStack.translate(-0.5, 0.9375, -0.4375);
-		pMatrixStack.pushPose();
-		pMatrixStack.mulPose(new Quaternion(40,0,0,true));
-		IModelData imd=Minecraft.getInstance().getBlockRenderer().getBlockModel(bs).getModelData(pLivingEntity.getLevel(),new BlockPos(0,0,0), bs,ModelDataManager.getModelData(pLivingEntity.getLevel(),new BlockPos(0,0,0)));
-		Minecraft.getInstance().getBlockRenderer().renderSingleBlock(bs, pMatrixStack, pBuffer, pPackedLight,OverlayTexture.NO_OVERLAY,imd);
-		pMatrixStack.popPose();
-		pMatrixStack.popPose();
+		if(pLivingEntity.getItemBySlot(EquipmentSlot.LEGS).getItem().equals(Blocks.torch.get().asItem())) {
+			BlockState bs=Contents.Blocks.torch.get().defaultBlockState();
+			pMatrixStack.pushPose();
+			pMatrixStack.translate(-0.5, 0.9375, -0.4375);
+			pMatrixStack.pushPose();
+			pMatrixStack.mulPose(new Quaternion(40,0,0,true));
+			IModelData imd=Minecraft.getInstance().getBlockRenderer().getBlockModel(bs).getModelData(pLivingEntity.getLevel(),new BlockPos(0,0,0), bs,ModelDataManager.getModelData(pLivingEntity.getLevel(),new BlockPos(0,0,0)));
+			Minecraft.getInstance().getBlockRenderer().renderSingleBlock(bs, pMatrixStack, pBuffer, pPackedLight,OverlayTexture.NO_OVERLAY,imd);
+			pMatrixStack.popPose();
+			pMatrixStack.popPose();
+		}
 	}
 }

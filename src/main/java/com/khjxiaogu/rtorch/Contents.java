@@ -56,7 +56,7 @@ public class Contents {
 		public static final RegistryObject<WallTorchBlock> wall_torch=BREGISTER.register("wall_torchrino",()->new WallTorchBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_50886_) -> {
 		      return 14;
 		   }).sound(SoundType.WOOD),BatParticle));
-		public static final RegistryObject<StandingAndWallBlockItem> item=IREGISTER.register("torchrino",()->new StandingAndWallBlockItem(torch.get(),wall_torch.get(), new Item.Properties().tab(CreativeModeTab.TAB_DECORATIONS)));
+		public static final RegistryObject<StandingAndWallBlockItem> item=IREGISTER.register("torchrino",()->new WearableStandingAndWallBlockItem(torch.get(),wall_torch.get(), new Item.Properties().tab(CreativeModeTab.TAB_DECORATIONS)));
 		
 		public static void init() {
 			
