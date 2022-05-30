@@ -18,35 +18,44 @@
 
 package com.khjxiaogu.rtorch.mixin;
 
-import java.util.Iterator;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import com.khjxiaogu.rtorch.Contents;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.TickingBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 
-@Mixin(Level.class)
-public abstract class LevelMixin{
+@Mixin(Player.class)
+public abstract class PlayerMixin extends LivingEntity{	
+	protected PlayerMixin(EntityType<? extends LivingEntity> p_20966_, Level p_20967_) {
+		super(p_20966_, p_20967_);
+	}
 
-	public BlockPos RT$pos;
-	@Shadow(remap=true)
-	public abstract BlockState getBlockState(BlockPos pPos);
-
-	
-	@Inject(at = @At(value="INVOKE",target="Lnet/minecraft/world/level/block/entity/TickingBlockEntity;isRemoved()Z"),
-			method = "tickBlockEntities",
+	@Inject(at = @At("HEAD"),
+			method = "tick",
 			remap = true,
-			locals=LocalCapture.CAPTURE_FAILHARD,
+			cancellable=true,
 			require=1,
 			allow=1)
-	public void RT$tickBlockEntities(CallbackInfo cb,ProfilerFiller profilerfiller,Iterator<TickingBlockEntity> iterator,TickingBlockEntity tickingblockentity) {
-		RT$pos=tickingblockentity.getPos();
+	public void RT$tick(CallbackInfo cb) {
+		
+		if(super.getLevel().getGameTime()%2==0)
+			if(getItemBySlot(EquipmentSlot.LEGS).getItem().equals(Contents.Blocks.item.get())) {
+				MobEffectInstance dslow=super.getEffect(MobEffects.DIG_SLOWDOWN);
+				if(dslow==null||dslow.getDuration()<10) {
+					super.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN,10,5));
+				}
+					
+				cb.cancel();
+			}
 	}
+
+
 }

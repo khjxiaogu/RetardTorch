@@ -6,7 +6,8 @@
   "refmap": "rtorch.refmap.json",
   "mixins": [
   "ServerLevelMixin",
-  "LevelMixin"
+  "LevelMixin",
+  "PlayerMixin"
   ],
   "client": [],
   "injectors": {

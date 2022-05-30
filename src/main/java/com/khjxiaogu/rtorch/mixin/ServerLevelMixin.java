@@ -48,19 +48,21 @@ public abstract class ServerLevelMixin extends Level{
 	@Inject(at = @At("HEAD"),
 			method = "shouldTickBlocksAt",
 			remap = true,
-			cancellable=true)
+			cancellable=true,
+			require=1,
+			allow=1)
 	public void RT$shouldTickBlocksAt(long l,CallbackInfoReturnable<Boolean> cbi) {
 		int cntoftorch=0;
 		Block tor=Contents.Blocks.torch.get();
 		Block wtor=Contents.Blocks.wall_torch.get();
-		BlockPos pos=((LevelMixin)(Object)this).pos;
+		BlockPos pos=((LevelMixin)(Object)this).RT$pos;
 		for(Direction d:Direction.values()) {
 			Block b=getBlockState(pos.relative(d)).getBlock();
 			if(b==tor||b==wtor)
 				cntoftorch++;
 		}
 		if(cntoftorch>0)
-		if(Math.random()>=1f/(cntoftorch+1)) {
+		if(getGameTime()%(cntoftorch+1)!=0) {
 			cbi.setReturnValue(false);
 		}
 	}
