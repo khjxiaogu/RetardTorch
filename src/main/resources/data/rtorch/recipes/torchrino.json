@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "RTR",
+    " R "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:torch"
+    },
+    "C": {
+      "item": "minecraft:compass"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "rtorch:torchrino"
+  }
+}
