@@ -86,9 +86,9 @@ public abstract class LivingEntityMixin extends Entity{
 			}
 	}
 	@Shadow(remap=true)
-	protected abstract MobEffectInstance getEffect(MobEffect digSlowdown);
+	public abstract MobEffectInstance getEffect(MobEffect pPotion);
 	@Shadow(remap=true)
-	protected abstract void addEffect(MobEffectInstance mobEffectInstance);
+	public abstract boolean addEffect(MobEffectInstance mobEffectInstance);
 	@Shadow(remap=true)
 	protected abstract ItemStack getItemBySlot(EquipmentSlot legs);
 

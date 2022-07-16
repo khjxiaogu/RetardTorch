@@ -10,7 +10,8 @@
   "PlayerMixin",
   "LevelChunkSectionMixin",
   "BlockStateBaseMixin",
-  "FluidStateMixin"
+  "FluidStateMixin",
+  "FluidAccess"
   ],
   "client": [],
   "injectors": {
