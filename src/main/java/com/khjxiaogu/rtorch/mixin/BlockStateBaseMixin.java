@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableMap;
 import com.khjxiaogu.rtorch.Utils;
 import com.mojang.serialization.MapCodec;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateHolder;
@@ -17,32 +19,36 @@ import net.minecraft.world.level.block.state.BlockBehaviour.BlockStateBase;
 import net.minecraft.world.level.block.state.properties.Property;
 
 @Mixin(BlockStateBase.class)
-public abstract class BlockStateBaseMixin extends StateHolder<Block, BlockState>{
+public abstract class BlockStateBaseMixin extends StateHolder<Block, BlockState> {
 
 	protected BlockStateBaseMixin(Block pOwner, ImmutableMap<Property<?>, Comparable<?>> pValues,
 			MapCodec<BlockState> pPropertiesCodec) {
 		super(pOwner, pValues, pPropertiesCodec);
 	}
-	@Shadow(remap=true)
+
+	@Shadow(remap = true)
 	public abstract Block getBlock();
-	@Shadow(remap=true)
+
+	@Shadow(remap = true)
 	protected abstract BlockState asState();
-	@Inject(at=@At("HEAD"),method="isRandomlyTicking", remap = true, require = 1, allow = 1,cancellable=true)
-    public void RT$isRandomlyTicking(CallbackInfoReturnable<Boolean> cbi) {
-		if(!this.getBlock().isRandomlyTicking(asState())) {
+
+	@Inject(at = @At("HEAD"), method = "isRandomlyTicking", remap = true, require = 1, allow = 1, cancellable = true)
+	public void RT$isRandomlyTicking(CallbackInfoReturnable<Boolean> cbi) {
+		Level rl = Utils.randomLevel;
+		BlockPos pos = Utils.randomPos;
+		Utils.randomLevel = null;
+		Utils.randomPos = null;
+		if (!this.getBlock().isRandomlyTicking(asState())) {
 			cbi.setReturnValue(false);
 			return;
 		}
-		int cntoftorch = Utils.countTorch(Utils.randomLevel,Utils.randomPos);
+		int cntoftorch = Utils.countTorch(rl, pos);
 		if (cntoftorch > 0)
-			if (Utils.randomLevel.getRandom().nextInt(cntoftorch + 1) != 0) {
+			if (rl.getRandom().nextInt(cntoftorch + 1) != 0) {
 				cbi.setReturnValue(false);
 				return;
 			}
-		//clean up to avoid problems
-		Utils.randomLevel=null;
-		Utils.randomPos=null;
 		cbi.setReturnValue(true);
-     }
+	}
 
 }
