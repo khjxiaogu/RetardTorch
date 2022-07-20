@@ -12,9 +12,9 @@ public class Utils {
 	public Utils() {
 	}
 	public static int countTorch(Level l,BlockPos pos) {
-		if (!(l instanceof ServerLevel))
+		if (pos==null||!(l instanceof ServerLevel))
 			return 0;
-	
+		
 		return RTDefaultCache.getCountOfTorchs((ServerLevel) l, pos);
 	}
 }
