@@ -20,14 +20,22 @@ package com.khjxiaogu.rtorch.events;
 
 import com.khjxiaogu.rtorch.Contents;
 import com.khjxiaogu.rtorch.Main;
+import com.khjxiaogu.rtorch.RTCacheAccess;
+import com.khjxiaogu.rtorch.RTDefaultCache;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Main.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -52,5 +60,16 @@ public class ForgeEvents {
 				}
 		}
 	}
-
+    public static void register(RegisterCapabilitiesEvent event) {
+        event.register(RTCacheAccess.class);
+    }
+    public static void register(AttachCapabilitiesEvent<Level> event) {
+        event.addCapability(RTDefaultCache.ID,new RTDefaultCache());
+    }
+    public static void tick(TickEvent.WorldTickEvent event) {
+    	if(event.phase==TickEvent.Phase.START&&event.side==LogicalSide.SERVER&&event.world instanceof ServerLevel) {
+    		if(event.world.getGameTime()%100==0)
+    			RTDefaultCache.tickLevel((ServerLevel) event.world);
+    	}
+    }
 }

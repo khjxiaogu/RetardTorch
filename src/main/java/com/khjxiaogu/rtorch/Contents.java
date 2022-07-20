@@ -50,10 +50,10 @@ public class Contents {
 		static{
 			PREGISTER.register("bat",BatParticle.delegate);
 		}
-		public static final RegistryObject<TorchBlock> torch=BREGISTER.register("torchrino",()->new TorchBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_50886_) -> {
+		public static final RegistryObject<TorchBlock> torch=BREGISTER.register("torchrino",()->new RTorchBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_50886_) -> {
 		      return 14;
 		   }).sound(SoundType.WOOD),BatParticle));
-		public static final RegistryObject<WallTorchBlock> wall_torch=BREGISTER.register("wall_torchrino",()->new WallTorchBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_50886_) -> {
+		public static final RegistryObject<WallTorchBlock> wall_torch=BREGISTER.register("wall_torchrino",()->new RWallTorchBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().instabreak().lightLevel((p_50886_) -> {
 		      return 14;
 		   }).sound(SoundType.WOOD),BatParticle));
 		public static final RegistryObject<StandingAndWallBlockItem> item=IREGISTER.register("torchrino",()->new WearableStandingAndWallBlockItem(torch.get(),wall_torch.get(), new Item.Properties().tab(CreativeModeTab.TAB_DECORATIONS)));

@@ -21,6 +21,7 @@ package com.khjxiaogu.rtorch.mixin;
 import java.util.function.Supplier;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -34,6 +35,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.ChunkPos;
@@ -46,7 +48,8 @@ import net.minecraft.world.level.storage.WritableLevelData;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level {
-
+	@Shadow(remap=true)
+	private ServerChunkCache chunkSource;
 	protected ServerLevelMixin(WritableLevelData pLevelData, ResourceKey<Level> pDimension,
 			Holder<DimensionType> pDimensionTypeRegistration, Supplier<ProfilerFiller> pProfiler, boolean pIsClientSide,
 			boolean pIsDebug, long pBiomeZoomSeed) {
@@ -55,11 +58,18 @@ public abstract class ServerLevelMixin extends Level {
 
 	@Inject(at = @At("HEAD"), method = "shouldTickBlocksAt", remap = true, cancellable = true, require = 1, allow = 1)
 	public void RT$shouldTickBlocksAt(long l, CallbackInfoReturnable<Boolean> cbi) {
-		int cntoftorch = Utils.countTorch(this,((LevelMixin) (Object) this).RT$pos);
-		if (cntoftorch > 0)
-			if (getGameTime() % (cntoftorch + 1) != 0) {
-				cbi.setReturnValue(false);
-			}
+		if(chunkSource.chunkMap.getDistanceManager().inBlockTickingRange(l)) {
+			int cntoftorch = Utils.countTorch(this,((LevelMixin) (Object) this).RT$pos);
+			if (cntoftorch > 0)
+				if (getGameTime() % (cntoftorch + 1) != 0) {
+					cbi.setReturnValue(false);
+					return;
+				}
+			cbi.setReturnValue(true);
+			return;
+		}
+		cbi.setReturnValue(false);
+		return;
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isRandomlyTicking()Z", ordinal = 0,remap=true), method = "tickChunk", remap = true, require = 1, allow = 1, locals = LocalCapture.CAPTURE_FAILHARD)
