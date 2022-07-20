@@ -60,6 +60,7 @@ public abstract class ServerLevelMixin extends Level {
 	public void RT$shouldTickBlocksAt(long l, CallbackInfoReturnable<Boolean> cbi) {
 		if(chunkSource.chunkMap.getDistanceManager().inBlockTickingRange(l)) {
 			int cntoftorch = Utils.countTorch(this,((LevelMixin) (Object) this).RT$pos);
+			((LevelMixin) (Object) this).RT$pos=null;
 			if (cntoftorch > 0)
 				if (getGameTime() % (cntoftorch + 1) != 0) {
 					cbi.setReturnValue(false);
