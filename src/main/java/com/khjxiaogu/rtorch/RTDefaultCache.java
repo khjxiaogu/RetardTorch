@@ -90,7 +90,12 @@ public class RTDefaultCache implements ICapabilitySerializable<CompoundTag>,RTCa
 			BlockPos p = pos.relative(d);
 			if (!l.isLoaded(p))
 				continue;
-			Block b = l.getBlockState(p).getBlock();
+			Block b;
+			try {
+				b = l.getBlockState(p).getBlock();
+			}catch(ClassCastException cce) {//mojang worldgen may cause this exception.
+				return 0;
+			}
 			if (b == tor || b == wtor)
 				cntoftorch++;
 		}
