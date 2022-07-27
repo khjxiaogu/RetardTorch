@@ -23,12 +23,14 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class RTDefaultCache implements ICapabilitySerializable<CompoundTag>,RTCacheAccess {
+public class RTDefaultCache implements RTCacheAccess {
 
 
     public static final ResourceLocation ID = new ResourceLocation(Main.MODID,"level_cache");
 	private final LazyOptional<RTDefaultCache> capability;
-    Map<Long,Pair<Integer,Long>> cached=new HashMap<>();
+	private static RTCacheAccess last;
+	private static ServerLevel lastLevel;
+    Map<Long,Integer> cached=new HashMap<>();
 
     private static LazyOptional<RTCacheAccess> getCapability(Level world) {
         if (world instanceof ServerLevel) {
@@ -42,30 +44,37 @@ public class RTDefaultCache implements ICapabilitySerializable<CompoundTag>,RTCa
         return cap == RTCacheCapability.INSTANCE ? capability.cast() : LazyOptional.empty();
     }
     public static RTCacheAccess get(ServerLevel world) {
-        return getCapability(world).resolve().orElse(new RTDefaultCache());
+    	if(world==lastLevel&&last!=null)
+    		return last;
+    	lastLevel=null;
+    	last=null;
+        return (last=getCapability(lastLevel=world).resolve().orElse(new RTDefaultCache()));
     }
     public RTDefaultCache() {
         capability = LazyOptional.of(() -> this);
     }
     @Override
     public CompoundTag serializeNBT() {
+    	//System.out.println("snbt");
         CompoundTag nbt = new CompoundTag();
         ListTag lt=new ListTag();
-        for(Entry<Long, Pair<Integer, Long>> c:cached.entrySet()) {
-        	LongArrayTag lat=new LongArrayTag(new long[] {c.getKey(),c.getValue().getFirst(),c.getValue().getSecond()});
+        for(Entry<Long, Integer> c:cached.entrySet()) {
+        	LongArrayTag lat=new LongArrayTag(new long[] {c.getKey(),c.getValue()});
         	lt.add(lat);
         }
-        nbt.put("data", lt);
+        nbt.put("datan", lt);
         return nbt;
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-    	ListTag lt=nbt.getList("data",12);
+    	//System.out.println("dnbt");
+    	ListTag lt=nbt.getList("datan",12);
     	for(Tag t:lt) {
+    		
     		LongArrayTag lat=(LongArrayTag) t;
     		long[] las=lat.getAsLongArray();
-    		cached.put(las[0],Pair.of((int)las[1],las[2]));
+    		cached.put(las[0],(int)las[1]);
     	}
 
     }
@@ -74,46 +83,31 @@ public class RTDefaultCache implements ICapabilitySerializable<CompoundTag>,RTCa
     	return rcc.getCountOfTorch(l, pos);
     	
     }
-    public static void tickLevel(ServerLevel l) {
-    	RTCacheAccess rcc=get(l);
-    	rcc.tick(l);
-    	
-    }
-    private int fetch(Level l,BlockPos pos) {
-    	if (pos == null||l==null)
-			return 0;
-		Block tor = Contents.Blocks.torch.get();
-		Block wtor = Contents.Blocks.wall_torch.get();
-		int cntoftorch = 0;
-		
-		for (Direction d : Direction.values()) {
-			BlockPos p = pos.relative(d);
-			if (!l.isLoaded(p))
-				continue;
-			Block b;
-			try {
-				b = l.getBlockState(p).getBlock();
-			}catch(ClassCastException cce) {//mojang worldgen may cause this exception.
-				return 0;
-			}
-			if (b == tor || b == wtor)
-				cntoftorch++;
-		}
-		return cntoftorch;
-    }
+ 
     @Override
-    public void tick(Level l) {
-    	cached.values().removeIf(p->p.getSecond()<l.getGameTime());
-    }
+	public void addTorch(BlockPos pos) {
+
+		for(Direction d:Direction.values())
+			cached.compute(pos.relative(d).asLong(),(p,c)->{
+				if(c==null)
+					return 1;
+				return c+1;
+			});
+	}
+    @Override
+  	public void removeTorch(BlockPos pos) {
+    	for(Direction d:Direction.values())
+    		cached.compute(pos.relative(d).asLong(),(p,c)->{
+    			if(c==null)
+    				return null;
+    			if(c>1)
+    				return c-1;
+    			return null;
+    		});
+  	}
 	@Override
 	public int getCountOfTorch(Level l, BlockPos pos) {
 		long key=pos.asLong();
-		Pair<Integer, Long> r=cached.get(key);
-		if(r==null) {
-			int rc=fetch(l,pos);
-			cached.put(key, Pair.of(rc,l.getGameTime()+100L));
-			return rc;
-		}
-		return r.getFirst();
+		return cached.getOrDefault(key, 0);
 	}
 }

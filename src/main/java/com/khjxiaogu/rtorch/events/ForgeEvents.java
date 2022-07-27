@@ -60,16 +60,13 @@ public class ForgeEvents {
 				}
 		}
 	}
+	@SubscribeEvent
     public static void register(RegisterCapabilitiesEvent event) {
         event.register(RTCacheAccess.class);
     }
+	@SubscribeEvent
     public static void register(AttachCapabilitiesEvent<Level> event) {
+    	
         event.addCapability(RTDefaultCache.ID,new RTDefaultCache());
-    }
-    public static void tick(TickEvent.WorldTickEvent event) {
-    	if(event.phase==TickEvent.Phase.START&&event.side==LogicalSide.SERVER&&event.world instanceof ServerLevel) {
-    		if(event.world.getGameTime()%100==0)
-    			RTDefaultCache.tickLevel((ServerLevel) event.world);
-    	}
     }
 }

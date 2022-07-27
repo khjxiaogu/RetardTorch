@@ -7,7 +7,7 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 
 public class RTCacheCapability {
 
-    public static final Capability<RTCacheAccess> INSTANCE = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<RTCacheAccess> INSTANCE = CapabilityManager.get(new CapabilityToken<RTCacheAccess>() {});
 
 
 
