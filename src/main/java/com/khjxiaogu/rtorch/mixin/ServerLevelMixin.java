@@ -73,7 +73,7 @@ public abstract class ServerLevelMixin extends Level {
 		return;
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isRandomlyTicking()Z", ordinal = 0,remap=true), method = "tickChunk", remap = true, require = 1, allow = 1, locals = LocalCapture.CAPTURE_FAILHARD)
+	/*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isRandomlyTicking()Z", ordinal = 0,remap=true), method = "tickChunk", remap = true, require = 1, allow = 1, locals = LocalCapture.CAPTURE_FAILHARD)
 	public void RT$randomTickingBlock(LevelChunk pChunk, int pRandomTickSpeed, CallbackInfo cbi,ChunkPos cp,boolean f,int i,int j,ProfilerFiller k,LevelChunkSection[] l,int m,int n,LevelChunkSection o,int p,int q,BlockPos pos) {
 		Utils.randomPos=pos;
 		Utils.randomLevel=this;
@@ -87,5 +87,5 @@ public abstract class ServerLevelMixin extends Level {
 	public void RT$randomTickingEnd(LevelChunk pChunk, int pRandomTickSpeed, CallbackInfo cbi) {
 		Utils.randomPos=null;
 		Utils.randomLevel=null;
-	}
+	}*/
 }

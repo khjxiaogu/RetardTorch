@@ -9,8 +9,6 @@
   "LevelMixin",
   "PlayerMixin",
   "LevelChunkSectionMixin",
-  "BlockStateBaseMixin",
-  "FluidStateMixin",
   "FluidAccess"
   ],
   "client": [],
